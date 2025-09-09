@@ -1,41 +1,56 @@
-const mysql = require("mysql2/promise")
-require("dotenv").config({ path: ".env.local" })
+// Menggunakan library 'pg' yang sudah Anda install
+const { Pool } = require("pg");
+require("dotenv").config({ path: ".env.local" });
 
 async function testDatabaseConnection() {
-  console.log("🔄 Testing database connection...")
+  console.log("🔄 Testing PostgreSQL database connection...");
 
+  // Periksa apakah DATABASE_URL sudah diatur
+  if (!process.env.DATABASE_URL) {
+    console.error("❌ DATABASE_URL environment variable is not set!");
+    console.error("   Please check your .env.local file.");
+    return;
+  }
+
+  // Buat koneksi pool menggunakan DATABASE_URL
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
+
+  let client;
   try {
-    const connection = await mysql.createConnection({
-      host: process.env.DB_HOST || "localhost",
-      user: process.env.DB_USER || "root",
-      password: process.env.DB_PASSWORD || "",
-      database: process.env.DB_NAME || "bus_loan_system",
-      port: Number.parseInt(process.env.DB_PORT) || 3306,
-    })
-
-    console.log("✅ Database connection successful!")
+    // Ambil satu koneksi dari pool
+    client = await pool.connect();
+    console.log("✅ Database connection successful!");
 
     // Test queries
-    const [users] = await connection.execute("SELECT COUNT(*) as count FROM users")
-    console.log("👤 Total users:", users[0].count)
+    const usersResult = await client.query("SELECT COUNT(*) as count FROM users");
+    console.log("👤 Total users:", usersResult.rows[0].count);
 
-    const [loans] = await connection.execute("SELECT COUNT(*) as count FROM bus_loans")
-    console.log("🚌 Total bus loans:", loans[0].count)
+    const loansResult = await client.query("SELECT COUNT(*) as count FROM bus_loans");
+    console.log("🚌 Total bus loans:", loansResult.rows[0].count);
 
-    const [pendingLoans] = await connection.execute('SELECT COUNT(*) as count FROM bus_loans WHERE status = "pending"')
-    console.log("⏳ Pending loans:", pendingLoans[0].count)
+    // Gunakan kutip satu (') untuk string, ini adalah standar SQL
+    const pendingLoansResult = await client.query("SELECT COUNT(*) as count FROM bus_loans WHERE status = 'pending'");
+    console.log("⏳ Pending loans:", pendingLoansResult.rows[0].count);
 
-    await connection.end()
-    console.log("✅ Database test completed successfully!")
+    console.log("\n✅ Database test completed successfully!");
   } catch (error) {
-    console.error("❌ Database connection failed:")
-    console.error("Error:", error.message)
-    console.error("\n🔧 Troubleshooting tips:")
-    console.error("1. Make sure MySQL server is running")
-    console.error("2. Check your .env.local file configuration")
-    console.error("3. Verify database and tables exist")
-    console.error("4. Check username/password credentials")
+    console.error("❌ Database connection failed:");
+    console.error("Error:", error.message);
+    console.error("\n🔧 Troubleshooting tips:");
+    console.error("1. Check your internet connection.");
+    console.error("2. Verify the DATABASE_URL in your .env.local file is correct (use the 'Transaction Pooler' URL).");
+    console.error("3. Make sure your Supabase project is active and not paused.");
+    console.error("4. Check if the 'users' and 'bus_loans' tables exist in Supabase.");
+  } finally {
+    // Pastikan koneksi ditutup, baik berhasil maupun gagal
+    if (client) {
+      client.release(); // Kembalikan koneksi ke pool
+    }
+    await pool.end(); // Tutup semua koneksi di pool
+    console.log("- Connection closed.");
   }
 }
 
-testDatabaseConnection()
+testDatabaseConnection();

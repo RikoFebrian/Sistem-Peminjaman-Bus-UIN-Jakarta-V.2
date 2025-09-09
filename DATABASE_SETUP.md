@@ -140,3 +140,12 @@ SELECT * FROM bus_loans WHERE status = 'pending';
 
 -- Reset password admin (jika lupa)
 UPDATE users SET password = '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg/9u2' WHERE email = 'admin@uin-jakarta.ac.id';
+
+{
+  "dependencies": {
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.6"
+  }
+}
