@@ -65,5 +65,5 @@ EXECUTE FUNCTION update_updated_at_column();
 -- Langkah 6: Masukkan data admin default.
 -- Perintah INSERT ini sudah benar dan kompatibel.
 INSERT INTO users (nim, nama_mhs, prodi, fakultas, email, password, role) 
-VALUES ('ADMIN001', 'Administrator', 'Sistem Informasi', 'Sains dan Teknologi', 'admin@uin-jakarta.ac.id', 'admin123', 'admin')
+VALUES ('ADMIN001', 'Administrator', 'Sistem Informasi', 'Sains dan Teknologi', 'admin@uin-jakarta.ac.id', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin')
 ON CONFLICT (nim) DO NOTHING; -- Menghindari error jika admin sudah ada
