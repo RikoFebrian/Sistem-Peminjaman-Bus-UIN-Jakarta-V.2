@@ -132,7 +132,6 @@ export default function LoginPage() {
                 Daftar di sini
               </Link>
             </p>
-            <p className="text-xs text-gray-500"></p>
           </div>
         </CardContent>
       </Card>
